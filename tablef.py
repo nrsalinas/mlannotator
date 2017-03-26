@@ -28,7 +28,7 @@ def sf_ratio(supertable, superfamilies = 40, max_reads = 20):
 	const = float(max_reads) / (supertable[0][1] / total_domains)
 
 	for x in supertable[:superfamilies]:
-		reads = round((x[1] / total_domains) * const)
+		reads = int(round((x[1] / total_domains) * const))
 		ratios.append((x[0], reads))
 
 	return ratios
