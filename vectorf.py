@@ -29,10 +29,10 @@ def kmerme(aa_seq, kmer_length = 2, peptide_length = 33):
 			kmer = subseq[ia:iz]
 			#print "kmer",kmer
 			index = 0
-			for ik,k in enumerate(kmer):
+			for ik,k in enumerate(kmer[::-1]):
 				#print "k:",k
 				index += aaindx[k] * 20 ** ik
-
+			#print index
 			if index in vector:
 				vector[index] += 1
 			else:
@@ -42,3 +42,7 @@ def kmerme(aa_seq, kmer_length = 2, peptide_length = 33):
 		vector = {ind : vector[ind] / norm_const for ind in vector}
 
 	return vector
+
+def column_cal(kmer_length = 2):
+	"""Estimates the size of a kmer vector"""
+	col = 20 ** kmer_length
