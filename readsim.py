@@ -3,18 +3,21 @@ import tablef
 import vectorf
 import random
 from scipy.sparse import dok_matrix
-from sklearn.naive_bayes import MultinomialNB
+#from sklearn.naive_bayes import MultinomialNB
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.model_selection import train_test_split
 
 bffr = ''
 db_file = 'superprot.sqlite'
 csv_file = 'supertable.csv'
 sim_seq_length = 33
 kmer_size = 2
-classes = 5 # Number of most common superfamilies of proteins to select for training
-most_repres = 50 # Maximum number of simulated reads to generate from the most common superfamily
+classes = 10 # Number of most common superfamilies of proteins to select for training
+most_repres = 1000 # Maximum number of simulated reads to generate from the most common superfamily
+least_repres_ratio = 0.6 # Reads ratio between the least and most abundant superfamilies
 
 table = tablef.parse_supertable(csv_file)
-reads_sf = tablef.sf_ratio(table, superfamilies = classes, max_reads = most_repres)
+reads_sf = tablef.sf_ratio(table, superfamilies = classes, max_reads = most_repres, min_reads_prop = least_repres_ratio)
 no_train_samples = classes * most_repres
 
 con = sqlite3.connect(db_file)
@@ -66,8 +69,14 @@ spa_mat.resize((max_row, cols))
 #print "len(spa_mat.keys())", len(spa_mat.keys())
 X = spa_mat.tocsc()[:,:-1]
 Y = spa_mat.tocsc()[:,-1]
+Y = Y.toarray()
+
+X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size = 0.8, random_state = 0)
 
 # Parse matrix to scikit-learn
 
-model = MultinomialNB()
-model.fit(X,Y)
+#model = MultinomialNB()
+model = KNeighborsClassifier()
+model.fit(X_train, Y_train)
+myscore = model.score(X_test, Y_test)
+print "Score :",myscore
