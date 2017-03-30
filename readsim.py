@@ -3,6 +3,7 @@ import tablef
 import vectorf
 import random
 from scipy.sparse import dok_matrix
+from sklearn.naive_bayes import MultinomialNB
 
 bffr = ''
 db_file = 'superprot.sqlite'
@@ -55,15 +56,18 @@ for sfid,num in reads_sf:
 		spa_mat[samples_indx, (20 ** kmer_size)] = sfid
 		samples_indx += 1
 
+con.close()
+
 # Reshape the matrix
 max_row = (max(spa_mat.keys())[0] + 1)
 _,cols = spa_mat.shape
 #print "len(spa_mat.keys())", len(spa_mat.keys())
 spa_mat.resize((max_row, cols))
 #print "len(spa_mat.keys())", len(spa_mat.keys())
+X = spa_mat.tocsc()[:,:-1]
+Y = spa_mat.tocsc()[:,-1]
 
 # Parse matrix to scikit-learn
 
-
-
-con.close()
+model = MultinomialNB()
+model.fit(X,Y)
