@@ -4,8 +4,10 @@ import vectorf
 import random
 from scipy.sparse import dok_matrix
 #from sklearn.naive_bayes import MultinomialNB
-from sklearn.neighbors import KNeighborsClassifier
+#from sklearn.neighbors import KNeighborsClassifier
+from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import TfidfTransformer
 
 bffr = ''
 db_file = 'superprot.sqlite'
@@ -71,12 +73,19 @@ X = spa_mat.tocsc()[:,:-1]
 Y = spa_mat.tocsc()[:,-1]
 Y = Y.toarray()
 
-X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size = 0.8, random_state = 0)
+tfidrer = TfidfTransformer()
+Xtrans = tfidrer.fit_transform(X)
+
+X_train, X_test, Y_train, Y_test = train_test_split(Xtrans, Y, test_size = 0.1, random_state = 0)
+
+print "Train set size:", X_train.shape[0]
+print "Test set size:", X_test.shape[0]
 
 # Parse matrix to scikit-learn
 
 #model = MultinomialNB()
-model = KNeighborsClassifier()
+#model = KNeighborsClassifier()
+model = GradientBoostingClassifier(min_samples_split = 5, min_samples_leaf = 5, max_depth = 5, learning_rate = 0.1,  n_estimators = 100, subsample = 1.0)
 model.fit(X_train, Y_train)
-myscore = model.score(X_test, Y_test)
+myscore = model.score(X_test.toarray(), Y_test)
 print "Score :",myscore
