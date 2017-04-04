@@ -5,17 +5,16 @@ import random
 from scipy.sparse import dok_matrix
 #from sklearn.naive_bayes import MultinomialNB
 #from sklearn.neighbors import KNeighborsClassifier
-from sklearn.ensemble import GradientBoostingClassifier
-from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.feature_extraction.text import TfidfTransformer
+from sklearn.model_selection import train_test_split
 
-bffr = ''
+
 db_file = 'superprot.sqlite'
 csv_file = 'supertable.csv'
 sim_seq_length = 33
 kmer_size = 2
 classes = 10 # Number of most common superfamilies of proteins to select for training
-most_repres = 100 # Maximum number of simulated reads to generate from the most common superfamily
+most_repres = 10000 # Maximum number of simulated reads to generate from the most common superfamily
 least_repres_ratio = 0.6 # Reads ratio between the least and most abundant superfamilies
 
 table = tablef.parse_supertable(csv_file)
@@ -77,34 +76,3 @@ tfidrer = TfidfTransformer()
 Xtrans = tfidrer.fit_transform(X)
 
 X_train, X_test, Y_train, Y_test = train_test_split(Xtrans, Y, test_size = 0.1, random_state = 0)
-
-#print "Train set size:", X_train.shape[0]
-#print "Test set size:", X_test.shape[0]
-
-# Parse matrix to scikit-learn
-
-#model = MultinomialNB()
-#model = KNeighborsClassifier()
-#model = GradientBoostingClassifier(min_samples_split = 5, min_samples_leaf = 5, max_depth = 5, learning_rate = 0.1,  n_estimators = 100, subsample = 1.0)
-#model.fit(X_train, Y_train)
-#myscore = model.score(X_test.toarray(), Y_test)
-#print "Score :",myscore
-
-##############################################
-# Grid search GradientBoostingClassifier()
-##############################################
-
-param2test = {"min_samples_split" : [2,3], #50,100],
-	"min_samples_leaf" : [1,2], #50,100],
-	"max_depth" : [3,4,5],
-	"max_features" : ["sqrt", "log2", None]
-	}
-
-model = GradientBoostingClassifier()
-grid_search = GridSearchCV(estimator = model, param_grid = param2test)
-print X_train.shape
-print Y_train.shape
-grid_search.fit(X_train.toarray(), Y_train)
-
-print grid_search.best_score_
-print grid_search.best_params_
