@@ -15,10 +15,10 @@ bffr = ''
 # Grid search GradientBoostingClassifier()
 ##############################################
 
-param2test = {"min_samples_split" : [5, 10, 50,100],
-	"min_samples_leaf" : [5, 10, 50, 100],
-	"max_depth" : [3, 4, 5, 6],
-	"max_features" : ["sqrt", "log2", None]
+param2test = {"min_samples_split" : [3, 5, 7],
+	"min_samples_leaf" : [8, 10, 15, 20],
+	"max_depth" : [6, 7, 8],
+	"max_features" : "sqrt"
 	}
 
 model = GradientBoostingClassifier()
@@ -29,4 +29,5 @@ grid_search.fit(readsim.X_train.toarray(), readsim.Y_train)
 
 bffr += "Best score: {0}\n".format(grid_search.best_score_)
 bffr += "Best parameter set: {0}\n".format(grid_search.best_params_)
+bffr += "\n\nResults DataFrame:\n{0}\n".format(grid_search.cv_results_)
 print bffr
