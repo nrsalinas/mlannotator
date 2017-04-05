@@ -18,7 +18,7 @@ bffr = ''
 param2test = {"min_samples_split" : [3, 5, 7],
 	"min_samples_leaf" : [8, 10, 15, 20],
 	"max_depth" : [6, 7, 8],
-	"max_features" : "sqrt"
+	"max_features" : ["sqrt"]
 	}
 
 model = GradientBoostingClassifier()
