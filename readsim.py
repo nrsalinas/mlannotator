@@ -75,4 +75,4 @@ Y = Y.toarray().flatten()
 tfidrer = TfidfTransformer()
 Xtrans = tfidrer.fit_transform(X)
 
-X_train, X_test, Y_train, Y_test = train_test_split(Xtrans, Y, test_size = 0.1, random_state = 0)
+#X_train, X_test, Y_train, Y_test = train_test_split(Xtrans, Y, test_size = 0.1, random_state = 0)
