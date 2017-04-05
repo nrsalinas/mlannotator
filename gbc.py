@@ -25,7 +25,7 @@ model = GradientBoostingClassifier()
 grid_search = GridSearchCV(estimator = model, param_grid = param2test, cv = 10)
 bffr += "Training matrix shape: {0}\n".format(readsim.Xtrans.shape)
 bffr += "Shape of training label vector: {0}\n".format(readsim.Y.shape)
-grid_search.fit(readsim.Xtrans, readsim.Y)
+grid_search.fit(readsim.Xtrans.toarray(), readsim.Y)
 
 bffr += "Best score: {0}\n".format(grid_search.best_score_)
 bffr += "Best parameter set: {0}\n".format(grid_search.best_params_)
