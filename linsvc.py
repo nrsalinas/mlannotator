@@ -9,9 +9,9 @@ X, Y = readsim.get_arrays(kmer_size = 2, classes = 30, sim_seq_length = 33, read
 # Grid search GradientBoostingClassifier()
 ##############################################
 
-param2test = {"C" : [0.5, 1.0, 2.0],
-	"loss" : ["hinge", "squared_hinge"],
-	"penalty" : ["l1" , "l2"]
+param2test = {"C" : [0.5, 1.0, 2.0, 5.0],
+	"loss" : ["hinge", "squared_hinge"]
+#	"penalty" : ["l1" , "l2"]
 	}
 
 model = LinearSVC()
