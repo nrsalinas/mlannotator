@@ -3,6 +3,7 @@ from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.model_selection import GridSearchCV
 
 bffr = ''
+X, Y = readsim.get_arrays(kmer_size = 2, classes = 30, sim_seq_length = 33, reads_per_domain = 10)
 
 #model = MultinomialNB()
 #model = KNeighborsClassifier()
@@ -23,9 +24,9 @@ param2test = {"min_samples_split" : [3, 5, 7],
 
 model = GradientBoostingClassifier()
 grid_search = GridSearchCV(estimator = model, param_grid = param2test, cv = 10)
-bffr += "Training matrix shape: {0}\n".format(readsim.Xtrans.shape)
-bffr += "Shape of training label vector: {0}\n".format(readsim.Y.shape)
-grid_search.fit(readsim.Xtrans.toarray(), readsim.Y)
+bffr += "Training matrix shape: {0}\n".format(X.shape)
+bffr += "Shape of training label vector: {0}\n".format(Y.shape)
+grid_search.fit(X.toarray(), Y)
 
 bffr += "Best score: {0}\n".format(grid_search.best_score_)
 bffr += "Best parameter set: {0}\n".format(grid_search.best_params_)
