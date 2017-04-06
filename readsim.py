@@ -1,10 +1,7 @@
 import sqlite3
 import tablef
 import vectorf
-import random
 from scipy.sparse import dok_matrix
-#from sklearn.naive_bayes import MultinomialNB
-#from sklearn.neighbors import KNeighborsClassifier
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.model_selection import train_test_split
 
@@ -13,32 +10,36 @@ db_file = 'superprot.sqlite'
 csv_file = 'supertable.csv'
 sim_seq_length = 33
 kmer_size = 2
-classes = 10 # Number of most common superfamilies of proteins to select for training
-most_repres = 10000 # Maximum number of simulated reads to generate from the most common superfamily
-least_repres_ratio = 0.6 # Reads ratio between the least and most abundant superfamilies
+classes = 30 # Number of most common superfamilies of proteins to select for training
+reads_per_domain = 2 # Read to be simulated per domain assignment.
+
+bffr = "Kmer size: {0}\nSuperfamilies included: {1}\nShort reads simulated per superfamily: {2}\n\n".format(kmer_size, classes, reads_per_domain)
 
 table = tablef.parse_supertable(csv_file)
-reads_sf = tablef.sf_ratio(table, superfamilies = classes, max_reads = most_repres, min_reads_prop = least_repres_ratio)
-no_train_samples = classes * most_repres
+table = table[:classes]
+
+no_train_samples = classes * table[0][1] * reads_per_domain
 
 con = sqlite3.connect(db_file)
 cursor = con.cursor()
 
 samples_indx = 0
-spa_mat = dok_matrix((no_train_samples, (20 ** kmer_size + 1)))
+spa_mat = dok_matrix((no_train_samples , (20 ** kmer_size + 1)))
 
-for sfid,num in reads_sf:
-	print "sfid:",sfid," - num:",num
+bffr += "Superprotein\tSeqs attempted\tSeqs retrieved\tMean seq length\n"
+for sfid,num in table:
+	bffr += "{0}\t\t{1}\t\t".format(sfid, num)
+	seqs_retrieved = num
+	mean_length = 0
 	cursor.execute("SELECT Protein, Start, End FROM Assignments LEFT JOIN Superfamilies ON SuperID = Super WHERE SuperID = ? and End - Start > ?" , (sfid, sim_seq_length))
 	myassignments = cursor.fetchall()
-	random.shuffle(myassignments)
-	myassignments = myassignments[:num]
 	myassignments.sort(key = lambda x: x[0])
 
 	curr_prot = 0
 	dat = []
 	curr_seq = []
 	for (prot, start, end) in myassignments:
+		mean_length += (end - start)
 		if prot != curr_prot:
 			curr_prot = prot
 			cursor.execute("SELECT Sequence FROM Proteins WHERE ProteinID = ?", (prot,) )
@@ -47,19 +48,21 @@ for sfid,num in reads_sf:
 
 		protseq = curr_seq[start:end]
 		if "X" in protseq:
+			seqs_retrieved -= (1 * reads_per_domain)
 			continue
 		else:
 			#print protseq
-			kmer_freqs = vectorf.kmerme(protseq, kmer_length = kmer_size, peptide_length = sim_seq_length)
+			for x in xrange(reads_per_domain):
+				kmer_freqs = vectorf.kmerme(protseq, kmer_length = kmer_size, peptide_length = sim_seq_length)
 
-		# Store kmer freqs in Scipy sparse matrix
-
-		for kmer_indx in kmer_freqs:
-			#print "samples_indx:", samples_indx, "kmer_indx:", kmer_indx
-			spa_mat[samples_indx, kmer_indx] = kmer_freqs[kmer_indx]
-		spa_mat[samples_indx, (20 ** kmer_size)] = sfid
-		samples_indx += 1
-
+				# Store kmer freqs in Scipy sparse matrix
+				for kmer_indx in kmer_freqs:
+					#print "samples_indx:", samples_indx, "kmer_indx:", kmer_indx
+					spa_mat[samples_indx, kmer_indx] = kmer_freqs[kmer_indx]
+				spa_mat[samples_indx, (20 ** kmer_size)] = sfid
+				samples_indx += 1
+	mean_length /= seqs_retrieved
+	bffr += "{0}\t\t{1}\n".format(seqs_retrieved, mean_length)
 con.close()
 
 # Reshape the matrix
@@ -76,3 +79,5 @@ tfidrer = TfidfTransformer()
 Xtrans = tfidrer.fit_transform(X)
 
 #X_train, X_test, Y_train, Y_test = train_test_split(Xtrans, Y, test_size = 0.1, random_state = 0)
+
+print bffr
