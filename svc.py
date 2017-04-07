@@ -11,9 +11,9 @@ X, Y = readsim.get_arrays(kmer_size = 2, classes = 30, sim_seq_length = 33, read
 
 param2test = {"C" : [0.1, 1.0, 10.0],
 	"kernel" : ["rbf", "poly", "sigmoid"],
-	"gamma" = [0.01, 0.1, 1.0],
-	"coef0" = [0.0, 5.0, 10.0],
-	"degree" = [2, 3, 5]
+	"gamma" : [0.01, 0.1, 1.0],
+	"coef0" : [0.0, 5.0, 10.0],
+	"degree" : [2, 3, 5]
 	}
 
 model = SVC()
