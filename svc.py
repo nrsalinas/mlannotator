@@ -3,7 +3,7 @@ from sklearn.svm import SVC
 from sklearn.model_selection import GridSearchCV
 
 bffr = ''
-X, Y = readsim.get_arrays(kmer_size = 2, classes = 30, sim_seq_length = 33, reads_per_domain = 10, n_jobs = 4)
+X, Y = readsim.get_arrays(kmer_size = 2, classes = 30, sim_seq_length = 33, reads_per_domain = 10)
 
 ##############################################
 # Grid search GradientBoostingClassifier()
@@ -17,7 +17,7 @@ param2test = {"C" : [0.1, 1.0, 10.0],
 	}
 
 model = SVC()
-grid_search = GridSearchCV(estimator = model, param_grid = param2test, cv = 10)
+grid_search = GridSearchCV(estimator = model, param_grid = param2test, cv = 10, n_jobs = 4)
 bffr += "Training matrix shape: {0}\n".format(X.shape)
 bffr += "Shape of training label vector: {0}\n".format(Y.shape)
 grid_search.fit(X, Y)
