@@ -81,7 +81,7 @@ def get_arrays(kmer_size = 2, classes = 30, sim_seq_length = 33, reads_per_domai
 	Y = spa_mat.tocsc()[:,-1]
 	Y = Y.toarray().flatten()
 
-	tfidrer = TfidfTransformer()
-	Xtrans = tfidrer.fit_transform(X)
+	#tfidrer = TfidfTransformer()
+	#Xtrans = tfidrer.fit_transform(X)
 	#X_train, X_test, Y_train, Y_test = train_test_split(Xtrans, Y, test_size = 0.1, random_state = 0)
-	return (Xtrans, Y)
+	return (X, Y)
